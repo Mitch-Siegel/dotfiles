@@ -1,0 +1,1 @@
+hyprland.conf -> /home/mitch/.config/hypr/hyprland.conf
