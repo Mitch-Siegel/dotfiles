@@ -31,4 +31,4 @@
    - systemd-logind should already be installed, so just install `polkit` and off to the races
    - or at least, it should be... on my system (10/8/2023, 7700x/32gb/3080/3070/990Pro) running `sway` just locks the system up, necesitating a restart
      - doesn't matter if running as root or user
-  
+   - this was due to integrated graphics being enabled? turning it off after enabling nvidia to the modules list and rengerating initramfs made nouveau stop being loaded
