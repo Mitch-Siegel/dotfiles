@@ -2,6 +2,8 @@ This is a duplication of [this reddit comment](https://www.reddit.com/r/VFIO/com
 Eventually, it will probably grow into a more comprehensive guide. My ultimate goal is not only to pass through an entire host drive partition to a VM, but to also to boot Windows from it.
 
 
+## Reddit comment outlining partition passthrough
+
 (Warning: do not do this without backups and a lot of care. If you aren't very comfortable with Linux and tools like dd you probably should not do this at all. I mention it only to pass on the knowledge that it is possible, even if it's usually a bad idea.)
 
 For what it's worth, there is a way to pass through a single partition without having the VM treat it as a whole disk, but it's a massive kludge and not for the faint of heart. When I first set up VFIO I had a couple partitions I needed to share to the VM without passing the whole disk (due to Linux partitions on same disk) and figured out how to do it.
