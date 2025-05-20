@@ -80,6 +80,7 @@ impl<'a> Parser<'a> {
             Token::Reference => {
                 self.next_token()?;
                 Type::Reference(
+                    // mutable only if &mut
                     match self.peek_token()? {
                         Token::Mut => {
                             self.expect_token(Token::Mut)?;
@@ -87,6 +88,7 @@ impl<'a> Parser<'a> {
                         }
                         _ => Mutability::Immutable,
                     },
+                    // recursively parse the type being referenced
                     Box::from(self.parse_type()?),
                 )
             }
