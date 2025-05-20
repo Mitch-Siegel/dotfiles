@@ -36,12 +36,18 @@ colorscheme carbonfox
 " Terminal Function
 let g:term_buf = 0
 let g:term_win = 0
-function! TermToggle(height)
+function! TermToggle(dimension, vertical)
     if win_gotoid(g:term_win)
         hide
     else
-        botright new
-        exec "resize " . a:height
+        if a:vertical
+            botright vnew
+            exec "vertical resize " . a:dimension
+        else
+            botright new
+            exec "resize " . a:dimension
+        endif
+
         try
             exec "buffer " . g:term_buf
         catch
@@ -56,10 +62,14 @@ function! TermToggle(height)
     endif
 endfunction
 
-" Toggle terminal on/off (neovim)
-nnoremap <A-t> :call TermToggle(12)<CR>
-inoremap <A-t> <Esc>:call TermToggle(12)<CR>
-tnoremap <A-t> <C-\><C-n>:call TermToggle(12)<CR>
+" Toggle terminal on/off (neovim, horizontal)
+noremap <A-t> :call TermToggle(20, 0)<CR>
+noremap <A-t> <Esc>:call TermToggle(20, 0)<CR>
+noremap <A-t> <C-\><C-n>:call TermToggle(20, 0)<CR>
+" Toggle terminal on/off (neovim, vertical)
+noremap <A-T> :call TermToggle(80, 1)<CR>
+noremap <A-T> <Esc>:call TermToggle(80, 1)<CR>
+noremap <A-T> <C-\><C-n>:call TermToggle(80, 1)<CR>
 
 noremap <Up> <Nop>
 noremap <Down> <Nop>
