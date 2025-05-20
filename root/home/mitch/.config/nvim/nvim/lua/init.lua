@@ -15,6 +15,8 @@ require('nightfox').setup({
     },
     })
 
+require('lspconfig').rust_analyzer.setup({})
+
 -- require'lspconfig'.rust_analyzer.setup({
 --     settings = {
 --         ['rust-analyzer'] = {

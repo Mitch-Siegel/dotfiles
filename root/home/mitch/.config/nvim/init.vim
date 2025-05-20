@@ -75,4 +75,4 @@ inoremap <f1> <Esc>:NvimTreeToggle<return>
 noremap <A-f> :NvimTreeToggle<return>
 inoremap <A-f> <Esc>:NvimTreeToggle<return>
 
-
+nmap <silent> gd <Plug>(coc-definition)
