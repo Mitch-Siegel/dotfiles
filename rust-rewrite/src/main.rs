@@ -107,6 +107,12 @@ dollars: u64,
 cents: u8
 }
 
+impl Money {
+    fun new(dollars: u64, cents: u8) -> Self {
+        
+    }
+}
+
 fun money_add_dollars(m: Money, dollars: u64) {
     m.dollars = m.dollars + dollars;
     m.print();

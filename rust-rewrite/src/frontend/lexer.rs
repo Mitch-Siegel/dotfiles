@@ -166,6 +166,9 @@ impl<'a> Lexer<'a> {
             "pub" => Some(Token::Pub),
             "struct" => Some(Token::Struct),
             "impl" => Some(Token::Impl),
+            "Self" => Some(Token::SelfUpper),
+            "self" => Some(Token::SelfLower),
+            "mut" => Some(Token::Mut),
             _ => {
                 if identifier.len() > 0 {
                     Some(Token::Identifier(identifier))
@@ -294,6 +297,10 @@ impl<'a> Lexer<'a> {
                 ':' => {
                     self.advance_char();
                     Ok(Token::Colon)
+                }
+                '&' => {
+                    self.advance_char();
+                    Ok(Token::Reference)
                 }
                 '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
                     let mut constant_string = String::new();

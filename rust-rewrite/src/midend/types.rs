@@ -28,6 +28,7 @@ pub enum Type {
     I32,
     I64,
     UDT(String),
+    Self_,
     Reference(Mutability, Box<Type>),
     Pointer(Mutability, Box<Type>),
 }
@@ -45,6 +46,7 @@ impl Display for Type {
             Self::I32 => write!(f, "i32"),
             Self::I64 => write!(f, "i64"),
             Self::UDT(name) => write!(f, "user-defined type {}", name),
+            Self::Self_ => write!(f, "Self"),
             Self::Reference(mutability, to) => write!(f, "&{} {}", mutability, to),
             Self::Pointer(mutability, to) => write!(f, "*{} {}", mutability, to),
         }

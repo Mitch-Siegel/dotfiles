@@ -4,6 +4,7 @@
 use std::collections::VecDeque;
 
 use crate::midend::ir;
+use crate::midend::types::Type;
 
 use super::{
     ast::*,
@@ -85,6 +86,7 @@ impl<'a> Parser<'a> {
     // return the next token from the input stream without advancing
     // utilizes lookahead_token
     fn peek_token(&mut self) -> Result<Token, LexError> {
+        // FIXME: since lookahead_token_with_loc always unwrap_or's, it can never return an error.
         match self.peek_token_with_loc() {
             Ok((token, _)) => Ok(token),
             Err(e) => Err(e),
@@ -280,6 +282,73 @@ impl<'a> Parser<'a> {
         }
     }
 
+    fn try_parse_self_param(&mut self) -> Result<Option<VariableDeclarationTree>, ParseError> {
+        let start_loc = self.start_parsing("self parameter")?;
+
+        let is_reference = match self.peek_token()? {
+            Token::Reference => {
+                self.expect_token(Token::Reference)?;
+                true
+            }
+            _ => false,
+        };
+
+        let is_mutable = match self.peek_token()? {
+            Token::Mut => {
+                self.expect_token(Token::Mut)?;
+                true
+            }
+            _ => false,
+        };
+
+        let maybe_self_param = match self.peek_token()? {
+            Token::SelfLower => {
+                let typename_loc = self.peek_token_with_loc()?.1;
+                self.expect_token(Token::SelfLower);
+                Some(VariableDeclarationTree {
+                    loc: start_loc,
+                    name: String::from("self"),
+                    typename: TypenameTree {
+                        loc: typename_loc,
+                        type_: Type::Self_,
+                    },
+                })
+            }
+            _ => None,
+        };
+
+        match &maybe_self_param {
+            Some(self_param) => self.finish_parsing(self_param)?,
+            None => self.finish_parsing(&String::from("no self param"))?,
+        };
+
+        Ok(maybe_self_param)
+    }
+
+    fn parse_function_parameters(&mut self) -> Result<Vec<VariableDeclarationTree>, ParseError> {
+        let _start_loc = self.start_parsing("function parameters");
+
+        let mut params = Vec::<VariableDeclarationTree>::new();
+
+        loop {
+            match self.peek_token()? {
+                // argument declaration
+                Token::Identifier(_) => {
+                    params.push(self.parse_variable_declaration()?);
+                    match self.peek_token()? {
+                        Token::Comma => self.next_token()?, // expect another argument declaration after comma
+                        _ => break,                         // loop again for anything else
+                    };
+                }
+                Token::RParen => break, // done on rparen
+                _ => self.unexpected_token(&[Token::Identifier("".into())])?,
+            }
+        }
+
+        self.finish_parsing(&format!("{} parameters", params.len()));
+        Ok(params)
+    }
+
     fn parse_function_prototype(&mut self) -> Result<FunctionDeclarationTree, ParseError> {
         let start_loc = self.start_parsing("function prototype")?;
 
@@ -291,24 +360,9 @@ impl<'a> Parser<'a> {
             name: self.parse_identifier()?,
             arguments: {
                 self.expect_token(Token::LParen)?;
-                let mut arguments = Vec::<VariableDeclarationTree>::new();
-                loop {
-                    match self.peek_token()? {
-                        // argument declaration
-                        Token::Identifier(_) => {
-                            arguments.push(self.parse_variable_declaration()?);
-                            match self.peek_token()? {
-                                Token::Comma => self.next_token()?, // expect another argument declaration after comma
-                                _ => break,                         // loop again for anything else
-                            };
-                        }
-                        Token::RParen => break, // done on rparen
-                        _ => self.unexpected_token(&[Token::Identifier("".into())])?,
-                    }
-                }
-                // consume closing paren
+                let params = self.parse_function_parameters()?;
                 self.expect_token(Token::RParen)?;
-                arguments
+                params
             },
             return_type: match self.peek_token()? {
                 Token::Arrow => {
@@ -328,7 +382,7 @@ impl<'a> Parser<'a> {
 #[cfg(test)]
 mod tests {
     use crate::frontend::{
-        lexer::{token::Token, Lexer},
+        lexer::{token::Token, LexError, Lexer},
         parser::{ParseError, Parser},
         sourceloc::SourceLoc,
     };
@@ -352,5 +406,38 @@ mod tests {
                 &[Token::U8]
             ))
         )
+    }
+
+    #[test]
+    fn peek_token() {
+        let mut p = Parser::new(Lexer::from_string("u8"));
+        assert_eq!(p.peek_token(), Ok(Token::U8));
+        p.next_token().unwrap();
+        assert_eq!(p.peek_token(), Ok(Token::Eof));
+        p.next_token().unwrap();
+        assert_eq!(p.peek_token(), Ok(Token::Eof));
+    }
+
+    #[test]
+    fn lookahead_token() {
+        let mut p = Parser::new(Lexer::from_string("u8 u16 u32 u64"));
+        assert_eq!(p.lookahead_token(0), Ok(Token::U8));
+        assert_eq!(p.lookahead_token(1), Ok(Token::U16));
+        assert_eq!(p.lookahead_token(2), Ok(Token::U32));
+        assert_eq!(p.lookahead_token(3), Ok(Token::U64));
+    }
+
+    #[test]
+    fn unexpected_token() {
+        let mut p = Parser::new(Lexer::from_string("u8 u16 u32 u64"));
+        assert_eq!(p.expect_token(Token::U8), Ok(Token::U8));
+        assert_eq!(
+            p.expect_token(Token::U32),
+            Err(ParseError::unexpected_token(
+                SourceLoc::new(1, 4),
+                Token::U16,
+                &[Token::U32]
+            ))
+        );
     }
 }

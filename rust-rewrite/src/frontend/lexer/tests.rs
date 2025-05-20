@@ -87,75 +87,33 @@ fn kw_or_ident(string: &str, expected_token: Token) {
     );
 }
 
-// test every token
+// test every keyword
 #[test]
-fn kw_u8() {
-    kw_or_ident("u8", Token::U8);
-}
+fn keywords() {
+    let keyword_pairings = vec![
+        ("u8", Token::U8),
+        ("u16", Token::U16),
+        ("u32", Token::U32),
+        ("u64", Token::U64),
+        ("i8", Token::I8),
+        ("i16", Token::I16),
+        ("i32", Token::I32),
+        ("i64", Token::I64),
+        ("fun", Token::Fun),
+        ("if", Token::If),
+        ("else", Token::Else),
+        ("pub", Token::Pub),
+        ("while", Token::While),
+        ("struct", Token::Struct),
+        ("impl", Token::Impl),
+        ("Self", Token::SelfUpper),
+        ("self", Token::SelfLower),
+        ("mut", Token::Mut),
+    ];
 
-#[test]
-fn kw_u16() {
-    kw_or_ident("u16", Token::U16);
-}
-
-#[test]
-fn kw_u32() {
-    kw_or_ident("u32", Token::U32);
-}
-
-#[test]
-fn kw_u64() {
-    kw_or_ident("u64", Token::U64);
-}
-
-#[test]
-fn kw_i8() {
-    kw_or_ident("i8", Token::I8);
-}
-
-#[test]
-fn kw_i16() {
-    kw_or_ident("i16", Token::I16);
-}
-
-#[test]
-fn kw_i32() {
-    kw_or_ident("i32", Token::I32);
-}
-
-#[test]
-fn kw_i64() {
-    kw_or_ident("i64", Token::I64);
-}
-
-#[test]
-fn kw_fun() {
-    kw_or_ident("fun", Token::Fun);
-}
-
-#[test]
-fn kw_if() {
-    kw_or_ident("if", Token::If);
-}
-
-#[test]
-fn kw_else() {
-    kw_or_ident("else", Token::Else);
-}
-
-#[test]
-fn kw_while() {
-    kw_or_ident("while", Token::While);
-}
-
-#[test]
-fn kw_pub() {
-    kw_or_ident("pub", Token::Pub);
-}
-
-#[test]
-fn kw_struct() {
-    kw_or_ident("struct", Token::Struct);
+    for (string, token) in keyword_pairings {
+        kw_or_ident(string, token);
+    }
 }
 
 #[test]
@@ -229,14 +187,20 @@ fn token_display_to_token() {
         Token::Pub,
         Token::Struct,
         Token::Impl,
+        Token::SelfUpper,
+        Token::SelfLower,
+        Token::Mut,
+        Token::Reference,
         Token::LParen,
         Token::RParen,
         Token::Arrow,
         Token::LCurly,
         Token::RCurly,
         Token::Comma,
+        Token::Dot,
         Token::Semicolon,
         Token::Colon,
+        Token::Eof,
     ];
 
     for token in tokens {
