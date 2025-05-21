@@ -304,7 +304,7 @@ impl<'a> Parser<'a> {
         let maybe_self_param = match self.peek_token()? {
             Token::SelfLower => {
                 let typename_loc = self.peek_token_with_loc()?.1;
-                self.expect_token(Token::SelfLower);
+                self.expect_token(Token::SelfLower)?;
                 Some(VariableDeclarationTree {
                     loc: start_loc,
                     name: String::from("self"),
@@ -318,8 +318,12 @@ impl<'a> Parser<'a> {
         };
 
         match &maybe_self_param {
-            Some(self_param) => self.finish_parsing(self_param)?,
-            None => self.finish_parsing(&String::from("no self param"))?,
+            Some(self_param) => {
+                self.finish_parsing(self_param)?;
+            }
+            None => {
+                self.finish_parsing(&String::from("no self param"))?;
+            }
         };
 
         Ok(maybe_self_param)
@@ -345,7 +349,7 @@ impl<'a> Parser<'a> {
             }
         }
 
-        self.finish_parsing(&format!("{} parameters", params.len()));
+        self.finish_parsing(&format!("{} parameters", params.len()))?;
         Ok(params)
     }
 

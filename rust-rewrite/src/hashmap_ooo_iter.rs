@@ -1,6 +1,8 @@
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 
+#[allow(dead_code)]
+
 fn check_key_order<K, V>(map: &HashMap<K, V>, key_order: &Vec<K>)
 where
     K: Eq + Hash,

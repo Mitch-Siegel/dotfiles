@@ -33,12 +33,6 @@ impl Scope {
         self.variables.insert(variable.name().clone(), variable);
     }
 
-    pub fn lookup_declared_variable_by_name<'a>(&'a self, name: &str) -> &'a Variable {
-        self.variables
-            .get(name)
-            .expect(&format!("Use of undeclared variable {}", name))
-    }
-
     pub fn lookup_variable_by_name(&self, name: &str) -> Result<&Variable, UndefinedSymbolError> {
         self.variables
             .get(name)

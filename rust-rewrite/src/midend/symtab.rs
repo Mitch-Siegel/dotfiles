@@ -70,4 +70,13 @@ impl SymbolTable {
             FunctionOrPrototype::Prototype(prototype),
         );
     }
+
+    pub fn lookup_function_by_name(
+        &mut self,
+        name: &str,
+    ) -> Result<&FunctionOrPrototype, UndefinedSymbolError> {
+        self.functions
+            .get(name)
+            .ok_or(UndefinedSymbolError::function(name))
+    }
 }

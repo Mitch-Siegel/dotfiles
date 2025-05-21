@@ -105,7 +105,7 @@ impl<'a> Parser<'a> {
                 Token::SelfUpper,
             ])?,
         };
-        self.finish_parsing(&type_);
+        self.finish_parsing(&type_)?;
 
         Ok(type_)
     }
