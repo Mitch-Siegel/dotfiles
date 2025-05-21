@@ -205,6 +205,42 @@ impl Display for FieldExpressionTree {
 }
 
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PathExpressionTree {
+    pub sep_loc: SourceLoc,
+    pub prefix: Option<Box<PathExpressionTree>>,
+    pub segment: String,
+}
+impl Display for PathExpressionTree {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.prefix {
+            Some(prefix) => write!(f, "{}::{}", prefix, self.segment),
+            None => write!(f, "{}", self.segment),
+        }
+    }
+}
+impl PathExpressionTree {
+    pub fn from_first_segment(segment: String) -> Self {
+        Self {
+            sep_loc: SourceLoc::none(),
+            prefix: None,
+            segment,
+        }
+    }
+
+    pub fn from_prefix_path(
+        prefix: PathExpressionTree,
+        sep_loc: SourceLoc,
+        segment: String,
+    ) -> Self {
+        Self {
+            sep_loc,
+            prefix: Some(Box::new(prefix)),
+            segment,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum Statement {
     VariableDeclaration(VariableDeclarationTree),
     Expression(ExpressionTree),
@@ -315,6 +351,7 @@ pub enum Expression {
     While(Box<WhileExpressionTree>),
     FieldExpression(Box<FieldExpressionTree>),
     MethodCall(Box<MethodCallExpressionTree>),
+    Path(PathExpressionTree),
 }
 impl Display for Expression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -328,6 +365,7 @@ impl Display for Expression {
             Self::While(while_expression) => write!(f, "{}", while_expression),
             Self::FieldExpression(field_expression) => write!(f, "{}", field_expression),
             Self::MethodCall(method_call) => write!(f, "{}", method_call),
+            Self::Path(path_expression) => write!(f, "{}", path_expression),
         }
     }
 }

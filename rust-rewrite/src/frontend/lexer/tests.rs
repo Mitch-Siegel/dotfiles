@@ -200,6 +200,7 @@ fn token_display_to_token() {
         Token::Dot,
         Token::Semicolon,
         Token::Colon,
+        Token::PathSep,
     ];
 
     for token in tokens {

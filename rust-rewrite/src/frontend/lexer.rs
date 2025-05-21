@@ -296,7 +296,7 @@ impl<'a> Lexer<'a> {
                 }
                 ':' => {
                     self.advance_char();
-                    Ok(Token::Colon)
+                    Ok(self.match_next_char_for_token_or(':', Token::PathSep, Token::Colon))
                 }
                 '&' => {
                     self.advance_char();

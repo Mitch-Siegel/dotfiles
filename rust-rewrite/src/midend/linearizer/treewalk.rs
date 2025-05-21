@@ -309,6 +309,9 @@ impl Walk for ExpressionTree {
                 Value::from_operand(destination, context)
             }
             Expression::MethodCall(method_call) => method_call.walk(context),
+            Expression::Path(path_expression) => {
+                unimplemented!("path_expression.walk() not implemented")
+            }
         }
     }
 }

@@ -109,15 +109,14 @@ cents: u8
 
 impl Money {
     fun new(dollars: u64, cents: u8) -> Self {
-        
+       dollars = dollars + 1; 
     }
 }
 
-fun money_add_dollars(m: Money, dollars: u64) {
-    m.dollars = m.dollars + dollars;
-    m.print();
-}
-";
+fun main(){
+    money: Money;
+    money = Money::new(0, 99);
+}";
 
 fn main() {
     println!("Hello, world!");

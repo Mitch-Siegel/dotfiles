@@ -129,13 +129,13 @@ impl<'a> Parser<'a> {
             .unwrap_or((Token::Eof, self.lexer.current_loc()));
         self.last_match = start_loc;
         #[cfg(feature = "loud_parsing")]
-        println!("Parser::next_token() -> {}@{}", next, start_loc);
+        self.loud_print(&format!("Parser::next_token() -> {}@{}", next, start_loc));
         Ok(next)
     }
 
     fn expect_token(&mut self, _expected: Token) -> Result<Token, ParseError> {
         #[cfg(feature = "loud_parsing")]
-        println!("Parser::expect_token({})", _expected);
+        self.loud_print(&format!("Parser::expect_token({})", _expected));
 
         let (upcoming_token, upcoming_loc) = self.peek_token_with_loc()?;
         if upcoming_token.eq(&_expected) {
@@ -203,6 +203,14 @@ impl<'a> Parser<'a> {
         );
 
         Ok(())
+    }
+
+    #[cfg(feature = "loud_parsing")]
+    fn loud_print(&self, msg: &str) {
+        for _ in 0..self.parsing_stack.len() {
+            print!("\t");
+        }
+        println!("{}", msg);
     }
 }
 

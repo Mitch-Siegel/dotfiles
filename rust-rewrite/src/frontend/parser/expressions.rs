@@ -52,7 +52,7 @@ impl<'a> Parser<'a> {
     }
 
     pub fn parse_expression(&mut self) -> Result<ExpressionTree, ParseError> {
-        let _start_loc = self.start_parsing("expression")?;
+        let start_loc = self.start_parsing("expression")?;
 
         assert!(Self::token_starts_expression(self.peek_token()?)); // sanity-check this method call to self-validate
 
@@ -71,17 +71,6 @@ impl<'a> Parser<'a> {
             ])?,
         };
 
-        match self.peek_token()? {
-            Token::Dot => {
-                if matches!(self.lookahead_token(2)?, Token::LParen) {
-                    expr = self.parse_method_call_expression(expr)?;
-                } else {
-                    expr = self.parse_field_expression(expr)?;
-                }
-            }
-            _ => {}
-        }
-
         let peeked = self.peek_token()?;
         match peeked {
             Token::Plus
@@ -97,13 +86,28 @@ impl<'a> Parser<'a> {
                 let lhs = expr;
                 expr = self.parse_binary_expression_min_precedence(lhs, 0)?
             }
-
+            Token::PathSep => match expr.expression {
+                Expression::Identifier(first_segment) => {
+                    expr = ExpressionTree {
+                        loc: start_loc,
+                        expression: Expression::Path(self.parse_path_expression(first_segment)?),
+                    };
+                }
+                _ => {
+                    Err(ParseError::invalid_path(
+                        expr.loc,
+                        self.peek_token()?,
+                        &[Token::Identifier(String::new())],
+                    ))?;
+                }
+            },
             _ => {
                 #[cfg(feature = "loud_parsing")]
                 println!("Peeked {} after lhs {} of expression", peeked, expr);
             }
         }
 
+        // TODO: handle function call expressions here
         match self.peek_token()? {
             Token::Assign => {
                 expr = self.parse_assignment_expression(expr)?;
@@ -225,6 +229,45 @@ impl<'a> Parser<'a> {
         self.finish_parsing(&expr)?;
 
         Ok(expr)
+    }
+
+    pub fn parse_path_expression(
+        &mut self,
+        first_segment: String,
+    ) -> Result<PathExpressionTree, ParseError> {
+        let sep_loc = self.start_parsing("path expression")?;
+
+        let mut path_expr = PathExpressionTree::from_first_segment(first_segment);
+
+        loop {
+            match self.peek_token()? {
+                Token::PathSep => {
+                    self.expect_token(Token::PathSep)?;
+                    path_expr = PathExpressionTree::from_prefix_path(
+                        path_expr,
+                        sep_loc,
+                        self.parse_path_segment()?,
+                    );
+                }
+                _ => break,
+            }
+        }
+
+        self.finish_parsing(&path_expr)?;
+
+        Ok(path_expr)
+    }
+
+    pub fn parse_path_segment(&mut self) -> Result<String, ParseError> {
+        self.start_parsing("path segment")?;
+
+        // TODO: accept 'self'
+        // FEATURE: modules? scopes? how to handle?
+        let segment = self.parse_identifier()?;
+
+        self.finish_parsing(&segment)?;
+
+        Ok(segment)
     }
 
     pub fn parse_call_params(&mut self, allow_self: bool) -> Result<CallParamsTree, ParseError> {

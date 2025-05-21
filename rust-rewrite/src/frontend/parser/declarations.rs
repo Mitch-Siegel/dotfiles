@@ -28,9 +28,14 @@ impl<'a> Parser<'a> {
 
         let prototype = self.parse_function_prototype()?;
 
-        let decl_or_def = match self.parse_function_definition(prototype.clone()) {
-            Ok(definition) => Ok(TranslationUnit::FunctionDefinition(definition)),
-            Err(_) => Ok(TranslationUnit::FunctionDeclaration(prototype)),
+        let decl_or_def = match self.peek_token()? {
+            Token::LCurly => Ok(TranslationUnit::FunctionDefinition(
+                FunctionDefinitionTree {
+                    prototype,
+                    body: self.parse_block_expression()?,
+                },
+            )),
+            _ => Ok(TranslationUnit::FunctionDeclaration(prototype)),
         };
 
         self.finish_parsing(decl_or_def.as_ref().unwrap())?;
@@ -106,6 +111,8 @@ impl<'a> Parser<'a> {
             let prototype = self.parse_function_prototype()?;
             items.push(self.parse_function_definition(prototype)?);
         }
+
+        self.expect_token(Token::RCurly)?;
 
         let implementation = TranslationUnit::Implementation(ImplementationTree {
             loc: start_loc,

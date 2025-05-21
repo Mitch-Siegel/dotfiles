@@ -41,6 +41,7 @@ pub enum Token {
     Dot,
     Semicolon,
     Colon,
+    PathSep,
     Identifier(String),
     UnsignedDecimalConstant(usize),
     Eof,
@@ -88,6 +89,7 @@ impl PartialEq for Token {
             (Token::Dot, Token::Dot) => true,
             (Token::Semicolon, Token::Semicolon) => true,
             (Token::Colon, Token::Colon) => true,
+            (Token::PathSep, Token::PathSep) => true,
             (Token::Identifier(_), Token::Identifier(_)) => true,
             (Token::UnsignedDecimalConstant(_), Token::UnsignedDecimalConstant(_)) => true,
             (Token::Eof, Token::Eof) => true,
@@ -140,6 +142,7 @@ impl Token {
             Self::Dot => ".",
             Self::Semicolon => ";",
             Self::Colon => ":",
+            Self::PathSep => ":",
             Self::Identifier(_) => "identifier",
             Self::UnsignedDecimalConstant(_) => "unsigned decimal constant",
             Self::Eof => "EOF",
@@ -189,6 +192,7 @@ impl Display for Token {
             Self::Dot => write!(f, "."),
             Self::Semicolon => write!(f, ";"),
             Self::Colon => write!(f, ":"),
+            Self::PathSep => write!(f, "::"),
             Self::Identifier(string) => write!(f, "Identifier({})", string),
             Self::UnsignedDecimalConstant(constant) => {
                 write!(f, "UnsignedDecimalConstant({})", constant)
