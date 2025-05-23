@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -euox pipefail
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -83,8 +83,16 @@ while IFS= read -r SOURCE_PATH; do
 	RELATIVE_PATH="${SOURCE_PATH#$REPO_ROOT}"
 	TARGET_PATH="/$RELATIVE_PATH"
 
+	[[ "$HOME" != "/home/mitch" ]] && TARGET_PATH="${TARGET_PATH/\/home\/mitch/$HOME}"
+
 	PARENT_DIR=$(dirname "$TARGET_PATH")
-	mkdir -p "$PARENT_DIR"
+	
+	# Normalize leading double slashes (e.g., //path -> /path)
+	PARENT_DIR=$(echo "$PARENT_DIR" | sed 's|^//|/|')
+
+	if [ ! -d "$PARENT_DIR" ]; then
+		mkdir -p "$PARENT_DIR"
+	fi
 	
 	if [ ! -f "$TARGET_PATH" ]; then
 		create_link "$SOURCE_PATH" "$TARGET_PATH" false
