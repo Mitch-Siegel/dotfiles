@@ -7,7 +7,9 @@ set tabstop=4
 set expandtab
 set shiftwidth=4
 set autoindent
+set nu
 set relativenumber " relative line numbering
+
 set wildmode=longest,list
 "set cc=80
 filetype plugin indent on
@@ -44,7 +46,7 @@ function! TermToggle(dimension, vertical)
             botright vnew
             exec "vertical resize " . a:dimension
         else
-            botright new
+            botright new:
             exec "resize " . a:dimension
         endif
 
