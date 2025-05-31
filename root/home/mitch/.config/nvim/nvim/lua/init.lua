@@ -15,19 +15,27 @@ require('nightfox').setup({
     },
     })
 
+
 require('lspconfig').rust_analyzer.setup({})
 
--- require'lspconfig'.rust_analyzer.setup({
---     settings = {
---         ['rust-analyzer'] = {
---             check = {
---                 command = "clippy";
---             },
---             diagnostics = {
---                 enable = true;
---             }
---         }
---     }
+require'lspconfig'.rust_analyzer.setup({
+    settings = {
+        ['rust-analyzer'] = {
+            check = {
+                command = "clippy";
+            },
+            diagnostics = {
+                enable = true;
+            }
+        }
+    }
+})
+
+vim.g.coc_preferences_formatOnSave = true
+
+-- vim.api.nvim_create_autocmd({'BufWritePre'}, {
+--     buffer = 0,
+--     command = "CocCommand editor.action.formatDocument",
 -- })
 -- 
 -- 

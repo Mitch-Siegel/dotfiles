@@ -73,6 +73,7 @@ noremap <A-T> :call TermToggle(80, 1)<CR>
 noremap <A-T> <Esc>:call TermToggle(80, 1)<CR>
 noremap <A-T> <C-\><C-n>:call TermToggle(80, 1)<CR>
 
+" unbind arrow keys
 noremap <Up> <Nop>
 noremap <Down> <Nop>
 noremap <Left> <Nop>
@@ -82,9 +83,20 @@ noremap <Right> <Nop>
 tnoremap <Esc> <C-\><C-n>
 tnoremap :q! <C-\><C-n>:q!<CR>
 
+" nvim-tree binds
 noremap <f1> :NvimTreeToggle<return>
 inoremap <f1> <Esc>:NvimTreeToggle<return>
 noremap <A-f> :NvimTreeToggle<return>
 inoremap <A-f> <Esc>:NvimTreeToggle<return>
 
+" CoC binds
 nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+nmap <silent> rn <Plug>(coc-rename)
+
+nmap <silent> f <Plug>(coc-format)
+
+
