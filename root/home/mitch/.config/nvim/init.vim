@@ -23,8 +23,8 @@ call plug#begin()
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
     Plug 'EdenEast/nightfox.nvim'
     Plug 'neovim/nvim-lspconfig'
-    "Plug-jpq/coq.artifacts', {'branch': 'artifacts'}
-    "Plug 'tomasiser/vim-code-dark'
+        "Plug-jpq/coq.artifacts', {'branch': 'artifacts'}
+        "Plug 'tomasiser/vim-code-dark'
     Plug 'nvim-tree/nvim-tree.lua'
     Plug 'github/copilot.vim'
 call plug#end()
@@ -72,6 +72,52 @@ noremap <A-t> <C-\><C-n>:call TermToggle(20, 0)<CR>
 noremap <A-T> :call TermToggle(80, 1)<CR>
 noremap <A-T> <Esc>:call TermToggle(80, 1)<CR>
 noremap <A-T> <C-\><C-n>:call TermToggle(80, 1)<CR>
+
+" iterate all windows, if we find a terminal go to it and return true
+" else, do nothing and return false
+function! GoToTerminal()
+    for win in getwininfo()
+        if getbufvar(win.bufnr, '&buftype') ==# 'terminal'
+            call win_gotoid(win.winid)
+            return v:true
+        endif
+    endfor
+    return v:false
+endfunction
+
+function! RerunLastTerminalCommand()
+  let l:cur_win = win_getid()
+  
+  if GoToTerminal()
+      " Use feedkeys with a slight defer so terminal mode activates properly
+      call timer_start(10, { -> feedkeys("i\<Up>\<CR>", 't') })
+      " Return to the original window (after a short delay)
+      call timer_start(50, { -> win_gotoid(l:cur_win) })
+  endif
+endfunction
+noremap <F3> :call RerunLastTerminalCommand()<CR>
+
+let g:terminal_toggle_prev_winid = -1
+function! ToggleTerminalInsert()
+    " first press, record where we are and jump to the terminal
+    if g:terminal_toggle_prev_winid == -1
+        let g:terminal_toggle_prev_winid = win_getid()
+        if !GoToTerminal()
+            echo "No open terminal buffer found."
+            let g:terminal_toggle_prev_winid = -1
+        else
+            echo "Switched to terminal."
+            call feedkeys("i")
+        endif
+    else
+        call timer_start(10, { -> feedkeys("\<Esc>\<C-\\>\<C-n>", 't')})
+        call timer_start(50, { -> win_gotoid(g:terminal_toggle_prev_winid)})
+        let g:terminal_toggle_prev_winid = -1
+        echo "Switched back from terminal"
+    endif
+endfunction
+noremap <F2> :call ToggleTerminalInsert()<CR>
+tnoremap <F2> <C-\><C-n>:call ToggleTerminalInsert()<CR>
 
 " unbind arrow keys
 noremap <Up> <Nop>
